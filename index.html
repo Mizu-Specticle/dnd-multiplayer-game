@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>D&D Multiplayer Adventure</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="game-container">
+        <div id="lobby-screen" class="screen active">
+            <h1>⚔️ D&D Multiplayer Adventure ⚔️</h1>
+            <div class="lobby-content">
+                <div class="lobby-section">
+                    <h2>Create or Join Lobby</h2>
+                    <input type="text" id="username-input" placeholder="Enter your username" maxlength="20">
+                    <button id="create-lobby-btn" class="btn-primary">Create Lobby</button>
+                    <div class="divider">OR</div>
+                    <input type="text" id="lobby-code-input" placeholder="Enter lobby code">
+                    <button id="join-lobby-btn" class="btn-primary">Join Lobby</button>
+                </div>
+                <div id="lobby-info" class="lobby-info" style="display: none;">
+                    <h3>Current Lobby</h3>
+                    <p id="lobby-code-display"></p>
+                    <div id="players-list"></div>
+                    <button id="start-game-btn" class="btn-primary" disabled>Start Game (Need 2-4 players)</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="class-select-screen" class="screen">
+            <h1>Choose Your Class</h1>
+            <div class="classes-grid">
+                <div class="class-card" data-class="rogue">
+                    <h3>🗡️ Rogue</h3>
+                    <p class="difficulty">⭐ Easiest</p>
+                    <p class="class-desc">Quick strikes and evasion. High damage, low defense.</p>
+                    <p class="stats">ATK: 8 | DEF: 3 | HP: 60</p>
+                </div>
+                <div class="class-card" data-class="archer">
+                    <h3>🏹 Archer</h3>
+                    <p class="difficulty">⭐ Easy</p>
+                    <p class="class-desc">Ranged attacks with precision. Balanced stats.</p>
+                    <p class="stats">ATK: 7 | DEF: 5 | HP: 70</p>
+                </div>
+                <div class="class-card" data-class="mage">
+                    <h3>✨ Mage</h3>
+                    <p class="difficulty">⭐⭐ Medium</p>
+                    <p class="class-desc">Elemental spells with area damage. Low health.</p>
+                    <p class="stats">ATK: 6 | DEF: 2 | HP: 50</p>
+                </div>
+                <div class="class-card" data-class="warrior">
+                    <h3>⚡ Warrior</h3>
+                    <p class="difficulty">⭐⭐ Medium</p>
+                    <p class="class-desc">Strong melee attacks. High defense and health.</p>
+                    <p class="stats">ATK: 9 | DEF: 8 | HP: 100</p>
+                </div>
+                <div class="class-card" data-class="saintsworn">
+                    <h3>✨🗡️ Saintsworn</h3>
+                    <p class="difficulty">⭐⭐⭐ Hard</p>
+                    <p class="class-desc">Rogue with magic. Balanced hybrid class.</p>
+                    <p class="stats">ATK: 7 | DEF: 5 | HP: 75</p>
+                </div>
+                <div class="class-card" data-class="dragon-hybrid">
+                    <h3>🐉 Dragon Hybrid</h3>
+                    <p class="difficulty">⭐⭐⭐ Hard</p>
+                    <p class="class-desc">Fire abilities and dragon powers. High risk, high reward.</p>
+                    <p class="stats">ATK: 10 | DEF: 6 | HP: 85</p>
+                </div>
+                <div class="class-card" data-class="shadow-walker">
+                    <h3>👤 Shadow Walker</h3>
+                    <p class="difficulty">⭐⭐⭐⭐⭐ Hardest</p>
+                    <p class="class-desc">Dark magic and shadow control. Complex mechanics.</p>
+                    <p class="stats">ATK: 8 | DEF: 4 | HP: 65</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="game-screen" class="screen">
+            <div class="game-header">
+                <div id="turn-order" class="turn-order">
+                    <h4>📋 Turn Order</h4>
+                    <div id="turn-list"></div>
+                </div>
+            </div>
+
+            <div id="game-content">
+                <div id="dungeon-view">
+                    <canvas id="gameCanvas" width="1024" height="576"></canvas>
+                </div>
+
+                <div id="game-ui">
+                    <div id="player-stats">
+                        <div id="player-card" class="player-card">
+                            <h3 id="player-name"></h3>
+                            <p id="player-class"></p>
+                            <div class="stat-bar">
+                                <div id="health-bar" class="health-bar"></div>
+                            </div>
+                            <div class="stat-text">❤️ HP: <span id="health-text">0/0</span></div>
+                            <button id="open-stat-menu" class="btn-small">Stats</button>
+                            <div id="player-abilities"></div>
+                        </div>
+                    </div>
+
+                    <div id="enemy-info">
+                        <div class="enemy-card">
+                            <h3 id="enemy-name"></h3>
+                            <div class="stat-bar">
+                                <div id="enemy-health-bar" class="health-bar"></div>
+                            </div>
+                            <div class="stat-text">❤️ HP: <span id="enemy-health-text">0/0</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="stage-selection" class="stage-selection">
+                <h3>🗺️ Choose Your Path</h3>
+                <div id="stage-options"></div>
+            </div>
+
+            <div id="resting-area" class="resting-area" style="display: none;">
+                <h3>🏕️ Resting Spot</h3>
+                <p>What would you like to do?</p>
+                <button id="rest-heal" class="btn-secondary">Rest - Restore 30% Health</button>
+                <button id="rest-weapon" class="btn-secondary">Sharpen Weapon +2 ATK</button>
+                <button id="rest-armor" class="btn-secondary">Reinforce Armor +2 DEF</button>
+                <button id="bank-access" class="btn-secondary">💰 Access Bank</button>
+                <button id="continue-adventure" class="btn-primary">Continue Adventure</button>
+            </div>
+
+            <div id="fountain-prompt" class="fountain-prompt" style="display: none;">
+                <h3>✨ Fountain of Rejuvenation ✨</h3>
+                <p id="fountain-target"></p>
+                <button id="fountain-revive" class="btn-secondary">Put Ally's Body in Fountain</button>
+                <button id="fountain-skip" class="btn-secondary">Skip</button>
+            </div>
+
+            <div id="stat-menu" class="stat-menu" style="display: none;">
+                <h3>📊 Character Stats</h3>
+                <div class="stat-upgrade">
+                    <label>❤️ Vitality: <span id="vitality-val">10</span></label>
+                    <button id="vitality-up" class="btn-small">+</button>
+                </div>
+                <div class="stat-upgrade">
+                    <label>⚔️ Strength: <span id="strength-val">10</span></label>
+                    <button id="strength-up" class="btn-small">+</button>
+                </div>
+                <div class="stat-upgrade">
+                    <label>🧠 Intelligence: <span id="intelligence-val">10</span></label>
+                    <button id="intelligence-up" class="btn-small">+</button>
+                </div>
+                <div class="stat-upgrade">
+                    <label>🍀 Luck: <span id="luck-val">10</span></label>
+                    <button id="luck-up" class="btn-small">+</button>
+                </div>
+                <button id="close-stat-menu" class="btn-primary">Close</button>
+            </div>
+
+            <div id="bank-menu" class="bank-menu" style="display: none;">
+                <h3>💰 Shared Bank</h3>
+                <div id="bank-inventory"></div>
+                <button id="close-bank" class="btn-primary">Close Bank</button>
+            </div>
+
+            <div id="battle-log" class="battle-log"></div>
+        </div>
+
+        <div id="victory-screen" class="screen">
+            <h1>🎉 Victory! 🎉</h1>
+            <div id="victory-content"></div>
+            <button id="return-lobby-btn" class="btn-primary">Return to Lobby</button>
+        </div>
+
+        <div id="defeat-screen" class="screen">
+            <h1>💀 Defeated 💀</h1>
+            <div id="defeat-content"></div>
+            <button id="return-lobby-defeat-btn" class="btn-primary">Return to Lobby</button>
+        </div>
+    </div>
+
+    <script src="game.js"></script>
+</body>
+</html>
